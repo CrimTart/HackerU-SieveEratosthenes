@@ -15,9 +15,7 @@ public class Main {
             System.out.println("Input a positive integer up to " + Long.MAX_VALUE);
             long upperLong = scanner.nextLong();
             if (upperLong < 1) throw new IllegalArgumentException();
-            int upperInt = (int)Math.ceil(Math.sqrt(upperLong)/3);
-            boolean[] mySieve = constructSieve(upperInt);
-            System.out.println(upperLong + (isPrime(upperLong, mySieve)?" is prime!":" is not prime!"));
+            System.out.println(upperLong + (isPrime(upperLong)?" is prime!":" is not prime!"));
         }
         catch (IllegalArgumentException e) {
             System.out.println("Integer must be positive");
@@ -30,26 +28,21 @@ public class Main {
         }
     }
 
-    public static boolean isPrime(long n, boolean[] sieve) {
+    public static boolean isPrime(long n) {
         if (n == 2 || n == 3) return true;
         if (n == 1 || n % 2 == 0 || n % 3 == 0) return false;
+        int upperInt = (int)Math.ceil(Math.sqrt(n)/3);
+        boolean[] sieve = constructSieve(upperInt);
         for (int i = 0; i < sieve.length; i++) {
-            if (sieve[i] && n % (2 * i + 3) == 0) return false;
+            if (sieve[i] && n % sieveValue(i) == 0) return false;
         }
         return true;
     }
 
-    //Skipping all numbers divisible by 2 or 3, construct a list of all primes up to an upper limit
+    //Skipping all numbers divisible by 2 or 3, construct an Eratosthenes sieve up to an upper limit
     public static boolean[] constructSieve(int upper) {
         boolean[] sieve = new boolean[upper];
         for (int i = 0; i < sieve.length; i++) sieve[i] = true;
-        /*for (int i = 0; i <= Math.sqrt(sieve.length - 1); i++) {
-            if (sieve[i]) {
-                int shift = 2 * i + 3; // actual number represented by the sieve cell
-                for (int j = i + shift; j < sieve.length; j += shift)
-                    sieve[j] = false;
-            }
-        }*/
         for (int i = 0; i <= Math.sqrt(sieve.length - 1); i++)
             if (sieve[i]) {
                 int shift = sieveValue(i);
@@ -59,8 +52,13 @@ public class Main {
         return sieve;
     }
 
+    //Actual number represented by sieve[i]
     public static int sieveValue(int i) {
-        if (i == 0) return 5;
-        return sieveValue(i-1) + 2 * (1 + i%2);
+        int value = 5;
+        for (int j = 0; j < i; j++) {
+            if (i % 2 == 0) value += 4;
+            else value += 2;
+        }
+        return value;
     }
 }
